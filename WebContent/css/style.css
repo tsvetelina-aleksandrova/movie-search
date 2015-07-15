@@ -38,5 +38,8 @@
   .main-container .error-text {
     padding-top: 5px;
     color: tomato; }
+  .main-container .success-text {
+    padding-top: 5px;
+    color: green; }
 
 /*# sourceMappingURL=style.css.map */
