@@ -1,4 +1,42 @@
-p {
-  font-style: Calibri; }
+.main-container {
+  width: 80%;
+  margin-left: 10%;
+  margin-right: 10%;
+  margin-top: 3%;
+  font-family: Calibri, serif; }
+  .main-container .info-text {
+    font-style: oblique; }
+  .main-container button {
+    width: 100%; }
+    .main-container button .btn {
+      font-size: 130%; }
+  .main-container .form-control {
+    margin-bottom: 5px; }
+  .main-container textarea {
+    color: darkgray; }
+  .main-container .search-results {
+    background-color: gainsboro;
+    border-radius: 5px;
+    border-width: 0;
+    padding: 10px; }
+    .main-container .search-results ul {
+      list-style-type: none; }
+      .main-container .search-results ul li:nth-child(2n+1) {
+        color: white; }
+      .main-container .search-results ul li {
+        color: slategray; }
+  .main-container .container {
+    padding: 5px;
+    padding-right: 10px; }
+  .main-container .container.right-container {
+    padding-left: 10px;
+    padding-bottom: 20px;
+    box-shadow: 0 0 0 0 gainsboro; }
+  @media (min-width: 1080px) {
+    .main-container .container.right-container {
+      box-shadow: -1px 0 0 0 gainsboro; } }
+  .main-container .error-text {
+    padding-top: 5px;
+    color: tomato; }
 
 /*# sourceMappingURL=style.css.map */
