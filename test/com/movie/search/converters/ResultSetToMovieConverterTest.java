@@ -1,4 +1,4 @@
-package com.movie.search.persist;
+package com.movie.search.converters;
 
 import static org.junit.Assert.assertEquals;
 
@@ -10,6 +10,9 @@ import org.junit.Test;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
+
+import com.movie.search.converters.ResultSetToMovieConverter;
+import com.movie.search.models.Movie;
 
 public class ResultSetToMovieConverterTest {
 	@Mock

@@ -2,4 +2,5 @@
 .classpath
 .project
 build
-WebContent/WEB-INF/lib
+WebContent/lib
+WebContent/css/.sass-cache

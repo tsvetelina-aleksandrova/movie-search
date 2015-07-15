@@ -1,4 +1,4 @@
-package com.movie.search.persist;
+package com.movie.search.models;
 
 public class Movie {
 	private String title;
