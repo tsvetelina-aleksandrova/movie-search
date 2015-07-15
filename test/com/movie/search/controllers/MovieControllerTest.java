@@ -64,7 +64,7 @@ public class MovieControllerTest {
 	}
 
 	@Test
-	public void testGetMoviesMatching() {
+	public void testGetMoviesMatching() throws Exception {
 		List<Movie> movies = movieController.getMoviesMatching(testTextToMatch);
 		assertEquals(3, movies.size());
 		assertEquals(movieDescrMatching, movies.get(movies.size() - 1));

@@ -1,6 +1,8 @@
 package com.movie.search.servlets;
 
 import java.io.IOException;
+import java.sql.SQLException;
+import java.util.LinkedList;
 import java.util.List;
 
 import javax.servlet.ServletException;
@@ -27,15 +29,26 @@ public class MoviesServlet extends HttpServlet {
 
 	protected void doGet(HttpServletRequest request, HttpServletResponse response)
 			throws ServletException, IOException {
-		// check how to get this data
-		final String textToMatch = request.getParameter("search-text");
+		final String textToMatch = request.getParameter("textToMatch");
 
-		List<Movie> movies = movieController.getMoviesMatching(textToMatch);
-		String jsonOutput = movieListConverter.convert(movies);
+		List<Movie> movies = new LinkedList<>();
+		try {
+			movies = movieController.getMoviesMatching(textToMatch);
+			if (movies.isEmpty()) {
+				response.setStatus(HttpServletResponse.SC_NO_CONTENT);
+				response.flushBuffer();
+				return;
+			}
+			String jsonOutput = movieListConverter.convert(movies);
 
-		response.setContentType("application/json");
-		response.setCharacterEncoding("UTF-8");
-		response.getWriter().write(jsonOutput);
+			response.setContentType("application/json");
+			response.setCharacterEncoding("UTF-8");
+			response.getWriter().write(jsonOutput);
+
+		} catch (SQLException e) {
+			response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+			response.flushBuffer();
+		}
 	}
 
 	protected void doPost(HttpServletRequest request, HttpServletResponse response)

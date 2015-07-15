@@ -37,16 +37,12 @@ public class MovieController implements IMovieController {
 	}
 
 	@Override
-	public List<Movie> getMoviesMatching(String textToMatch) {
+	public List<Movie> getMoviesMatching(String textToMatch) throws SQLException {
 		List<Movie> result = new LinkedList<>();
-		try {
-			connection.connect();
-			ResultSet dbResultSet = connection.getMatching(textToMatch);
-			result = movieConverter.convert(dbResultSet);
-			connection.close();
-		} catch (SQLException e) {
-			System.out.println("A database error occurred. No movies could be found.");
-		}
+		connection.connect();
+		ResultSet dbResultSet = connection.getMatching(textToMatch);
+		result = movieConverter.convert(dbResultSet);
+		connection.close();
 		// movies with titles containing the textToMatch
 		// should be returned first
 		return getMoviesWithMatchingTitlesFirst(result, textToMatch);
