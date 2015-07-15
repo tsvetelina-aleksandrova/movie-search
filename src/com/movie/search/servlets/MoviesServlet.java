@@ -53,7 +53,6 @@ public class MoviesServlet extends HttpServlet {
 
 	protected void doPost(HttpServletRequest request, HttpServletResponse response)
 			throws ServletException, IOException {
-		// watch out for these param names
 		final String title = request.getParameter("movie-title");
 		final String description = request.getParameter("movie-descr");
 

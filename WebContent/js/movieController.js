@@ -12,6 +12,7 @@ var MovieController = function() {
 
 		if(currentSearchText.length >= 3) {
 			$searchInfoText.css("visibility", "visible");
+			$searchResultsDiv.find(".error-text").empty();
 
 			resource.query({"textToMatch": currentSearchText}).then(function(err) {
 				// wtf
@@ -42,8 +43,16 @@ var MovieController = function() {
 	this.addMovie = function(e) {
 		// validate form
 		var newMovieData = helpers.getDataFromForm($addForm);
-		resource.create(newMovieData);
-		console.log("a");
+		console.log("here");
+		resource.create(newMovieData).then(function(err) {
+			//
+		}, function(result){
+			if(result.status === 200) {
+				$addForm.find(".success-text").html("Movie was added successfully");
+			} else {
+				$addForm.find(".error-text").html("Movie was not added successfully");
+			}
+		});
 		e.preventDefault();
 	}
 

@@ -42,6 +42,7 @@ public class MySqlConnection implements IConnection {
 
 			connection = (Connection) DriverManager
 					.getConnection(String.format(CONNECTION_TEMPL, DB_NAME, DB_USER_NAME, DB_PASS));
+
 		} catch (ClassNotFoundException e) {
 			System.out.println("MySQL driver is not available!");
 		} catch (SQLException e) {

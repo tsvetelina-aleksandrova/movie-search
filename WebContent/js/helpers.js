@@ -13,4 +13,4 @@ var helpers = (function() {
 	return {
 		getDataFromForm: getDataFromForm
 	};
-});
+}());
