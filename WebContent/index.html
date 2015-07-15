@@ -18,7 +18,7 @@
 				</h3>
 				<p class="info-text">Enter at least 3 letters to start searching for movies
 				</p>
-				<input type="text" class="form-control" name="movie-search" placeholder="Search">
+				<input type="text" id="search-movie-input" class="form-control" name="movie-search" placeholder="Search">
 				</input>
 				<div class="search-results">
 					<p class="search-info-text" visibility="hidden">
@@ -37,7 +37,7 @@
 					Add
 				</h3>
 				<p class="info-text">Add new movie</p>
-				<form>
+				<form id="add-movie-form">
 					<input type="text" class="form-control" name="movie-title" placeholder="Title">
 					</input>
 					<textarea class="form-control" name="movie-descr" placeholder="Description">Description
@@ -49,6 +49,11 @@
 		</div>
 
 		<script src="lib/jquery/dist/jquery.js"></script>
+		<script src="lib/q/q.js"></script>
+		<script src="js/resource.js"></script>
+		<script src="js/helpers.js"></script>
+		<script src="js/movieController.js"></script>
+		<script src="js/init.js"></script>
 
 	</body>
 </html>
