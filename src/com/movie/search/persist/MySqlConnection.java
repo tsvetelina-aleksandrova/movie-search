@@ -5,6 +5,8 @@ import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
 
 public class MySqlConnection {
 	private Connection connection = null;
@@ -14,18 +16,23 @@ public class MySqlConnection {
 	private static final String DB_PASS = "py234pass";
 	private static final String CONNECTION_TEMPL = "jdbc:mysql://localhost/$s?" + "user=%s&password=%s";
 
-	private MoviePrepStatement insertStatement;
-	private MoviePrepStatement selectStatement;
+	private HashMap<String, MoviePrepStatement> movieStatements;
 
 	public MySqlConnection() {
+		movieStatements = new LinkedHashMap<>();
 
-		String insertSt = "insert into movie_search.movies values (?, ?)";
-		String selectLikeSt = "select m.title" + "from movie_search.movies m" + "where m.title like '%?%'"
+		String insertStr = "insert into movie_search.movies values (?, ?)";
+		String selectLikeStr = "select m.title" + "from movie_search.movies m" + "where m.title like '%?%'"
 				+ "or m.descr like '%?%'";
 
-		insertStatement = new MoviePrepStatement(connection, insertSt);
-		selectStatement = new MoviePrepStatement(connection, selectLikeSt);
+		movieStatements.put(MoviePrepStatement.INSERT_STATEMENT_NAME, new MoviePrepStatement(connection, insertStr));
+		movieStatements.put(MoviePrepStatement.SELECT_MATCHING_STATEMENT_NAME,
+				new MoviePrepStatement(connection, selectLikeStr));
+	}
 
+	MySqlConnection(final Connection connection) {
+		this();
+		this.connection = connection;
 	}
 
 	public void connect() {
@@ -43,8 +50,9 @@ public class MySqlConnection {
 
 	public void close() {
 		try {
-			insertStatement.close();
-			selectStatement.close();
+			for (MoviePrepStatement statement : movieStatements.values()) {
+				statement.close();
+			}
 
 			if (connection != null) {
 				connection.close();
@@ -56,9 +64,12 @@ public class MySqlConnection {
 
 	public void insert(final String title, final String description) {
 		try {
+			MoviePrepStatement insertStatement = movieStatements.get(MoviePrepStatement.INSERT_STATEMENT_NAME);
 			PreparedStatement prepStatement = insertStatement.getPrepStatement();
+
 			prepStatement.setString(1, title);
 			prepStatement.setString(2, description);
+
 			prepStatement.executeUpdate();
 		} catch (SQLException e) {
 			System.out.println("A database error occured. Movie was not inserted!");
@@ -67,13 +78,24 @@ public class MySqlConnection {
 
 	public ResultSet getMatching(final String textToMatch) {
 		try {
+			MoviePrepStatement selectStatement = movieStatements.get(MoviePrepStatement.SELECT_MATCHING_STATEMENT_NAME);
 			PreparedStatement prepStatement = selectStatement.getPrepStatement();
+
 			prepStatement.setString(1, textToMatch);
 			prepStatement.setString(2, textToMatch);
+
 			return prepStatement.executeQuery();
 		} catch (SQLException e) {
 			System.out.println("A database error occured. Movie could not be found!");
 			return null;
 		}
+	}
+	/*
+	 * HashMap<String, MoviePrepStatement> getMoviePrepStatements() { return new
+	 * LinkedHashMap<String, MoviePrepStatement>(movieStatements); }
+	 */
+
+	HashMap<String, MoviePrepStatement> getMoviePrepStatements() {
+		return movieStatements;
 	}
 }

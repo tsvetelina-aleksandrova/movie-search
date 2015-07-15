@@ -16,6 +16,7 @@ public class MoviePrepStatementTest {
 	private Connection connection;
 	@Mock
 	private PreparedStatement prepStatement;
+
 	private MoviePrepStatement statement;
 	private String testStatementStr;
 

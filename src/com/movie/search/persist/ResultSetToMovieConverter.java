@@ -6,8 +6,8 @@ import java.util.LinkedList;
 import java.util.List;
 
 public class ResultSetToMovieConverter {
-	private static final String TITLE_COLUMN_NAME = "title";
-	private static final String DESCR_COLUMN_NAME = "descr";
+	static final String TITLE_COLUMN_NAME = "title";
+	static final String DESCR_COLUMN_NAME = "descr";
 
 	public List<Movie> convert(ResultSet resultSet) throws SQLException {
 		List<Movie> movies = new LinkedList<>();

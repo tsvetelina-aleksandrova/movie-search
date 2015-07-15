@@ -5,6 +5,9 @@ import java.sql.PreparedStatement;
 import java.sql.SQLException;
 
 public class MoviePrepStatement {
+	public static final String INSERT_STATEMENT_NAME = "insert";
+	public static final String SELECT_MATCHING_STATEMENT_NAME = "selectMatching";
+
 	private final String statementString;
 	private final Connection connection;
 	private PreparedStatement prepStatement;
