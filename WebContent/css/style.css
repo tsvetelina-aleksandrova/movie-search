@@ -21,10 +21,11 @@
     padding: 10px; }
     .main-container .search-results ul {
       list-style-type: none; }
-      .main-container .search-results ul li:nth-child(2n+1) {
-        color: white; }
       .main-container .search-results ul li {
-        color: slategray; }
+        color: slategray;
+        padding: 5px; }
+      .main-container .search-results ul li:nth-child(2n+1) {
+        background-color: white; }
   .main-container .container {
     padding: 5px;
     padding-right: 10px; }

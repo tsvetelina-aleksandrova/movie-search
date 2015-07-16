@@ -7,7 +7,7 @@ var MovieController = function() {
 	this.searchMovie = function(e) {
 		var currentSearchText = $searchInput.val();
 		var $searchResultsDiv = $(".search-results");
-		var $searchInfoText = $(".search-info-text");
+		var $searchInfoText = $(".search-wait-text");
 		var $searchResultsList = $("#search-results-list");
 
 		if(currentSearchText.length >= 3) {
@@ -19,6 +19,9 @@ var MovieController = function() {
 			}, function(result) {
 				$searchInfoText.css("visibility", "hidden");
 				if(result.status !== 200) {
+					if(result.status === 204){
+						$(".search-info-text").html("No movies found");
+					}
 					$searchResultsDiv.find(".error-text").html(
 						"Something went wrong :( Please try again later");
 				} else {

@@ -9,25 +9,16 @@ import java.util.HashMap;
 import java.util.LinkedHashMap;
 
 public class MySqlConnection implements IConnection {
-	private Connection connection = null;
+	private Connection connection;
 
 	private static final String DB_NAME = "movie_search";
 	private static final String DB_USER_NAME = "root";
-	private static final String DB_PASS = "pass";
-	private static final String CONNECTION_TEMPL = "jdbc:mysql://localhost/$s?" + "user=%s&password=%s";
+	private static final String CONNECTION_TEMPL = "jdbc:mysql://localhost/%s?" + "user=%s";
 
 	private HashMap<String, MoviePrepStatement> movieStatements;
 
 	public MySqlConnection() {
 		movieStatements = new LinkedHashMap<>();
-
-		String insertStr = "insert into movie_search.movies values (?, ?)";
-		String selectLikeStr = "select m.title" + "from movie_search.movies m" + "where m.title like '%?%'"
-				+ "or m.descr like '%?%'";
-
-		movieStatements.put(MoviePrepStatement.INSERT_STATEMENT_NAME, new MoviePrepStatement(connection, insertStr));
-		movieStatements.put(MoviePrepStatement.SELECT_MATCHING_STATEMENT_NAME,
-				new MoviePrepStatement(connection, selectLikeStr));
 	}
 
 	MySqlConnection(final Connection connection) {
@@ -36,17 +27,26 @@ public class MySqlConnection implements IConnection {
 	}
 
 	@Override
-	public void connect() {
+	public void connect() throws SQLException, ClassNotFoundException {
 		try {
 			Class.forName("com.mysql.jdbc.Driver");
+			String connStr = String.format(CONNECTION_TEMPL, DB_NAME, DB_USER_NAME);
+			connection = (Connection) DriverManager.getConnection(connStr);
 
-			connection = (Connection) DriverManager
-					.getConnection(String.format(CONNECTION_TEMPL, DB_NAME, DB_USER_NAME, DB_PASS));
+			String insertStr = "insert into movies (title, descr) values (?, ?)";
+			String selectLikeStr = "select * " + "from movies m " + "where m.title like ?" + " or m.descr like ?";
+
+			movieStatements.put(MoviePrepStatement.INSERT_STATEMENT_NAME,
+					new MoviePrepStatement(connection, insertStr));
+			movieStatements.put(MoviePrepStatement.SELECT_MATCHING_STATEMENT_NAME,
+					new MoviePrepStatement(connection, selectLikeStr));
 
 		} catch (ClassNotFoundException e) {
 			System.out.println("MySQL driver is not available!");
+			throw e;
 		} catch (SQLException e) {
 			System.out.println("Connection to database failed!");
+			throw e;
 		}
 	}
 
@@ -78,9 +78,10 @@ public class MySqlConnection implements IConnection {
 	public ResultSet getMatching(final String textToMatch) throws SQLException {
 		MoviePrepStatement selectStatement = movieStatements.get(MoviePrepStatement.SELECT_MATCHING_STATEMENT_NAME);
 		PreparedStatement prepStatement = selectStatement.getPrepStatement();
+		final String textMatchExpr = "%" + textToMatch + "%";
 
-		prepStatement.setString(1, textToMatch);
-		prepStatement.setString(2, textToMatch);
+		prepStatement.setString(1, textMatchExpr);
+		prepStatement.setString(2, textMatchExpr);
 
 		return prepStatement.executeQuery();
 	}

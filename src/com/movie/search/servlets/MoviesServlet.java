@@ -25,12 +25,12 @@ public class MoviesServlet extends HttpServlet {
 	public MoviesServlet() {
 		super();
 		movieController = new MovieController();
+		movieListConverter = new MovieToJsonConverter();
 	}
 
 	protected void doGet(HttpServletRequest request, HttpServletResponse response)
 			throws ServletException, IOException {
 		final String textToMatch = request.getParameter("textToMatch");
-
 		List<Movie> movies = new LinkedList<>();
 		try {
 			movies = movieController.getMoviesMatching(textToMatch);
@@ -46,6 +46,7 @@ public class MoviesServlet extends HttpServlet {
 			response.getWriter().write(jsonOutput);
 
 		} catch (SQLException e) {
+			e.printStackTrace();
 			response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
 			response.flushBuffer();
 		}

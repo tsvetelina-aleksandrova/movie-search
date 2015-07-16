@@ -27,11 +27,16 @@ public class MovieController implements IMovieController {
 	public boolean addMovie(String title, String description) {
 		try {
 			connection.connect();
+
 			connection.insert(title, description);
 			connection.close();
 			return true;
 		} catch (SQLException e) {
 			System.out.println("A database error occurred. Movie was not added.");
+			return false;
+		} catch (ClassNotFoundException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
 			return false;
 		}
 	}
@@ -39,7 +44,12 @@ public class MovieController implements IMovieController {
 	@Override
 	public List<Movie> getMoviesMatching(String textToMatch) throws SQLException {
 		List<Movie> result = new LinkedList<>();
-		connection.connect();
+		try {
+			connection.connect();
+		} catch (ClassNotFoundException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 		ResultSet dbResultSet = connection.getMatching(textToMatch);
 		result = movieConverter.convert(dbResultSet);
 		connection.close();

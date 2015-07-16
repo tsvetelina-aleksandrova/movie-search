@@ -1,7 +1,9 @@
 package com.movie.search.persist;
 
+import java.sql.SQLException;
+
 public interface IConnection {
-	void connect();
+	void connect() throws SQLException, ClassNotFoundException;
 
 	void close();
 }

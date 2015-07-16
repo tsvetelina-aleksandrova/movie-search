@@ -30,14 +30,17 @@
 		border-radius: 5px;
 		border-width: 0;
 		padding: 10px;
+
 		ul {
 			list-style-type: none;
 
-			li:nth-child(2n+1) {
-				color: white;
-			}
 			li {
 				color: slategray;
+				padding: 5px;
+			}
+
+			li:nth-child(2n+1) {
+				background-color: white;
 			}
 		}
 	}
