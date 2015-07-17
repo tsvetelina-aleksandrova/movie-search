@@ -29,6 +29,13 @@ public class MoviesServlet extends HttpServlet {
 		movieController = new MovieController();
 		movieListConverter = new MovieToJsonStringConverter();
 		poolingDriverConfig = new PoolingMySqlDriverConfig();
+
+		try {
+			poolingDriverConfig.setupDriver();
+		} catch (Exception e) {
+			System.out.println("Error with database pool configuration");
+			e.printStackTrace();
+		}
 	}
 
 	protected void doGet(HttpServletRequest request, HttpServletResponse response)
@@ -60,17 +67,23 @@ public class MoviesServlet extends HttpServlet {
 		final String title = request.getParameter("movie-title");
 		final String description = request.getParameter("movie-descr");
 		try {
-			movieController.addMovie(title, description);
-			response.setStatus(HttpServletResponse.SC_OK);
-			response.getWriter().write("Movie added successfully");
+			if (movieController.addMovie(title, description)) {
+				response.setStatus(HttpServletResponse.SC_OK);
+				response.getWriter().write("Movie added successfully");
+			} else {
+				response.setStatus(HttpServletResponse.SC_CONFLICT);
+				response.getWriter().write("Duplicate movie title");
+			}
+
 		} catch (Exception e) {
 			response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
 			response.getWriter().write("Movie was not added successfully");
 		}
 	}
 
-	public void init(final ServletConfig config) throws ServletException {
+	public void init(ServletConfig config) throws ServletException {
 		super.init(config);
+
 		try {
 			poolingDriverConfig.setupDriver();
 		} catch (Exception e) {

@@ -44,16 +44,25 @@ var MovieController = function() {
 	}
 
 	this.addMovie = function(e) {
-		// validate form
 		var newMovieData = helpers.getDataFromForm($addForm);
-		console.log("here");
+		var mandatoryTitleValue = newMovieData["movie-title"];
+		console.log(mandatoryTitleValue.length);
+		if(!mandatoryTitleValue || 0 === mandatoryTitleValue.length) {
+			$addForm.find(".error-text").html("Movie title is mandatory!");
+			e.preventDefault();
+			return;
+		} 
 		resource.create(newMovieData).then(function(err) {
 			//
 		}, function(result){
 			if(result.status === 200) {
 				$addForm.find(".success-text").html("Movie was added successfully");
 			} else {
-				$addForm.find(".error-text").html("Movie was not added successfully");
+				if(result.status === 409) {
+					$addForm.find(".error-text").html("A movie with this title already exists");
+				} else {
+					$addForm.find(".error-text").html("Movie was not added successfully");
+				}
 			}
 		});
 		e.preventDefault();

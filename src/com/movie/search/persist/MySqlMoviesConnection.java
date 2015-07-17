@@ -31,8 +31,8 @@ public class MySqlMoviesConnection implements IConnection {
 		try {
 			Class.forName("com.mysql.jdbc.Driver");
 
-			connection = DriverManager.getConnection(String.format("%s:%s",
-					PoolingDriverConfig.JDBC_POOLING_DRIVER_NAME, PoolingDriverConfig.POOL_NAME));
+			connection = DriverManager
+					.getConnection(PoolingDriverConfig.JDBC_POOLING_DRIVER_NAME + PoolingDriverConfig.POOL_NAME);
 
 			movieStatements.put(MoviePrepStatement.INSERT_STATEMENT_NAME,
 					new MoviePrepStatement(connection, INSERT_QUERY));
@@ -64,7 +64,7 @@ public class MySqlMoviesConnection implements IConnection {
 	public void insert(final String title, final String description) throws SQLException {
 		MoviePrepStatement insertStatement = movieStatements.get(MoviePrepStatement.INSERT_STATEMENT_NAME);
 		PreparedStatement prepStatement = insertStatement.getPrepStatement();
-
+		System.out.println("here");
 		prepStatement.setString(1, title);
 		prepStatement.setString(2, description);
 

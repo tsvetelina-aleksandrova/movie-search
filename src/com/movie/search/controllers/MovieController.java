@@ -8,6 +8,7 @@ import java.util.List;
 import com.movie.search.converters.ResultSetToMovieConverter;
 import com.movie.search.models.Movie;
 import com.movie.search.persist.MySqlMoviesConnection;
+import com.mysql.jdbc.exceptions.MySQLIntegrityConstraintViolationException;
 
 public class MovieController implements IMovieController {
 	private MySqlMoviesConnection connection;
@@ -24,23 +25,32 @@ public class MovieController implements IMovieController {
 	}
 
 	@Override
-	public void addMovie(String title, String description) throws SQLException, ClassNotFoundException {
+	public boolean addMovie(String title, String description) throws SQLException, ClassNotFoundException {
 		connection.connect();
-		connection.insert(title, description);
-		connection.close();
+		try {
+			connection.insert(title, description);
+			return true;
+		} catch (MySQLIntegrityConstraintViolationException e) {
+			return false;
+		} finally {
+			connection.close();
+		}
 	}
 
 	@Override
 	public List<Movie> getMoviesMatching(String textToMatch) throws Exception {
 		List<Movie> result = new LinkedList<>();
-		connection.connect();
+		try {
+			connection.connect();
 
-		ResultSet dbResultSet = connection.getMatching(textToMatch);
-		result = movieConverter.convert(dbResultSet);
-
-		connection.close();
-
-		return getMoviesWithMatchingTitlesFirst(result, textToMatch);
+			ResultSet dbResultSet = connection.getMatching(textToMatch);
+			result = movieConverter.convert(dbResultSet);
+			return getMoviesWithMatchingTitlesFirst(result, textToMatch);
+		} catch (Exception e) {
+			throw e;
+		} finally {
+			connection.close();
+		}
 	}
 
 	private List<Movie> getMoviesWithMatchingTitlesFirst(final List<Movie> movies, final String textToMatch) {
