@@ -13,7 +13,7 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 
-public class MySqlConnectionTest {
+public class MySqlMoviesConnectionTest {
 	@Mock
 	private Connection connection;
 	@Mock
@@ -27,13 +27,13 @@ public class MySqlConnectionTest {
 	@Mock
 	private PreparedStatement selectTestPrepSt;
 
-	private MySqlConnection mySqlconnection;
+	private MySqlMoviesConnection mySqlconnection;
 
 	@Before
 	public void setUp() {
 		MockitoAnnotations.initMocks(this);
 
-		mySqlconnection = new MySqlConnection(connection);
+		mySqlconnection = new MySqlMoviesConnection(connection);
 	}
 
 	@Test

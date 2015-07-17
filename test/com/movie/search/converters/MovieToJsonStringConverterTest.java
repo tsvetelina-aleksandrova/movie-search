@@ -9,15 +9,15 @@ import org.junit.Test;
 
 import com.movie.search.models.Movie;
 
-public class MovieToJsonConverterTest {
-	private MovieToJsonConverter converter;
+public class MovieToJsonStringConverterTest {
+	private MovieToJsonStringConverter converter;
 	private final String movieTitle1 = "title1";
 	private final String movieTitle2 = "title2";
 
 	@Test
 	public void testConvert() {
 		final String expectedResult = "[" + movieTitle1 + ", " + movieTitle2 + "]";
-		converter = new MovieToJsonConverter();
+		converter = new MovieToJsonStringConverter();
 		List<Movie> movies = new LinkedList<>();
 		movies.add(new Movie(movieTitle1, "123"));
 		movies.add(new Movie(movieTitle2, "456"));

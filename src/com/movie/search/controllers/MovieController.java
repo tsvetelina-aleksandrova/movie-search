@@ -7,54 +7,39 @@ import java.util.List;
 
 import com.movie.search.converters.ResultSetToMovieConverter;
 import com.movie.search.models.Movie;
-import com.movie.search.persist.MySqlConnection;
+import com.movie.search.persist.MySqlMoviesConnection;
 
 public class MovieController implements IMovieController {
-	private MySqlConnection connection;
+	private MySqlMoviesConnection connection;
 	private ResultSetToMovieConverter movieConverter;
 
 	public MovieController() {
-		connection = new MySqlConnection();
+		connection = new MySqlMoviesConnection();
 		movieConverter = new ResultSetToMovieConverter();
 	}
 
-	MovieController(final MySqlConnection connection, final ResultSetToMovieConverter movieConverter) {
+	MovieController(final MySqlMoviesConnection connection, final ResultSetToMovieConverter movieConverter) {
 		this.connection = connection;
 		this.movieConverter = movieConverter;
 	}
 
 	@Override
-	public boolean addMovie(String title, String description) {
-		try {
-			connection.connect();
-
-			connection.insert(title, description);
-			connection.close();
-			return true;
-		} catch (SQLException e) {
-			System.out.println("A database error occurred. Movie was not added.");
-			return false;
-		} catch (ClassNotFoundException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-			return false;
-		}
+	public void addMovie(String title, String description) throws SQLException, ClassNotFoundException {
+		connection.connect();
+		connection.insert(title, description);
+		connection.close();
 	}
 
 	@Override
-	public List<Movie> getMoviesMatching(String textToMatch) throws SQLException {
+	public List<Movie> getMoviesMatching(String textToMatch) throws Exception {
 		List<Movie> result = new LinkedList<>();
-		try {
-			connection.connect();
-		} catch (ClassNotFoundException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+		connection.connect();
+
 		ResultSet dbResultSet = connection.getMatching(textToMatch);
 		result = movieConverter.convert(dbResultSet);
+
 		connection.close();
-		// movies with titles containing the textToMatch
-		// should be returned first
+
 		return getMoviesWithMatchingTitlesFirst(result, textToMatch);
 	}
 

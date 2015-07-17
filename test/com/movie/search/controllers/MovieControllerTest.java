@@ -1,27 +1,25 @@
 package com.movie.search.controllers;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
 
 import java.sql.ResultSet;
-import java.sql.SQLException;
 import java.util.LinkedList;
 import java.util.List;
 
 import org.junit.Before;
 import org.junit.Test;
+import org.mockito.InOrder;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 
 import com.movie.search.converters.ResultSetToMovieConverter;
 import com.movie.search.models.Movie;
-import com.movie.search.persist.MySqlConnection;
+import com.movie.search.persist.MySqlMoviesConnection;
 
 public class MovieControllerTest {
 	@Mock
-	private MySqlConnection connection;
+	private MySqlMoviesConnection connection;
 	@Mock
 	private ResultSetToMovieConverter movieConverter;
 	@Mock
@@ -53,20 +51,28 @@ public class MovieControllerTest {
 	}
 
 	@Test
-	public void testAddMovieSuccessful() {
-		assertTrue(movieController.addMovie("testTitle", "testDescr"));
-	}
+	public void testAddMovie() throws Exception {
+		final String testTitle = "testTitle";
+		final String testDescr = "testDescr";
+		movieController.addMovie(testTitle, testDescr);
 
-	@Test
-	public void testAddMovieWithError() throws Exception {
-		Mockito.doThrow(SQLException.class).when(connection).insert(Mockito.anyString(), Mockito.anyString());
-		assertFalse(movieController.addMovie("testTitle", "testDescr"));
+		InOrder connOrder = Mockito.inOrder(connection, connection, connection);
+		connOrder.verify(connection).connect();
+		connOrder.verify(connection).insert(testTitle, testDescr);
+		connOrder.verify(connection).close();
 	}
 
 	@Test
 	public void testGetMoviesMatching() throws Exception {
 		List<Movie> movies = movieController.getMoviesMatching(testTextToMatch);
+
+		InOrder connOrder = Mockito.inOrder(connection, connection, connection);
+		connOrder.verify(connection).connect();
+		connOrder.verify(connection).getMatching(testTextToMatch);
+		connOrder.verify(connection).close();
+
 		assertEquals(3, movies.size());
 		assertEquals(movieDescrMatching, movies.get(movies.size() - 1));
+
 	}
 }

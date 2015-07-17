@@ -4,7 +4,7 @@ import java.util.List;
 
 import com.movie.search.models.Movie;
 
-public class MovieToJsonConverter implements IConverter<List<Movie>, String> {
+public class MovieToJsonStringConverter implements IConverter<List<Movie>, String> {
 
 	@Override
 	public String convert(List<Movie> movies) {

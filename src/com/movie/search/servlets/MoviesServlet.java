@@ -1,10 +1,10 @@
 package com.movie.search.servlets;
 
 import java.io.IOException;
-import java.sql.SQLException;
 import java.util.LinkedList;
 import java.util.List;
 
+import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
@@ -12,20 +12,23 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import com.movie.search.controllers.MovieController;
-import com.movie.search.converters.MovieToJsonConverter;
+import com.movie.search.converters.MovieToJsonStringConverter;
 import com.movie.search.models.Movie;
+import com.movie.search.persist.PoolingMySqlDriverConfig;
 
 @WebServlet("/movies")
 public class MoviesServlet extends HttpServlet {
 	private static final long serialVersionUID = 1L;
 
+	private PoolingMySqlDriverConfig poolingDriverConfig;
 	private MovieController movieController;
-	private MovieToJsonConverter movieListConverter;
+	private MovieToJsonStringConverter movieListConverter;
 
 	public MoviesServlet() {
 		super();
 		movieController = new MovieController();
-		movieListConverter = new MovieToJsonConverter();
+		movieListConverter = new MovieToJsonStringConverter();
+		poolingDriverConfig = new PoolingMySqlDriverConfig();
 	}
 
 	protected void doGet(HttpServletRequest request, HttpServletResponse response)
@@ -45,7 +48,7 @@ public class MoviesServlet extends HttpServlet {
 			response.setCharacterEncoding("UTF-8");
 			response.getWriter().write(jsonOutput);
 
-		} catch (SQLException e) {
+		} catch (Exception e) {
 			e.printStackTrace();
 			response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
 			response.flushBuffer();
@@ -56,13 +59,36 @@ public class MoviesServlet extends HttpServlet {
 			throws ServletException, IOException {
 		final String title = request.getParameter("movie-title");
 		final String description = request.getParameter("movie-descr");
-
-		if (movieController.addMovie(title, description)) {
+		try {
+			movieController.addMovie(title, description);
 			response.setStatus(HttpServletResponse.SC_OK);
 			response.getWriter().write("Movie added successfully");
-		} else {
+		} catch (Exception e) {
 			response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
 			response.getWriter().write("Movie was not added successfully");
 		}
+	}
+
+	public void init(final ServletConfig config) throws ServletException {
+		super.init(config);
+		try {
+			poolingDriverConfig.setupDriver();
+		} catch (Exception e) {
+			System.out.println("Error with database pool configuration");
+			e.printStackTrace();
+		}
+	}
+
+	public void destroy() {
+		try {
+			poolingDriverConfig.shutdownDriver();
+		} catch (Exception e) {
+			System.out.println("Error while shutting down database pool");
+			e.printStackTrace();
+		}
+	}
+
+	protected void finalize() {
+		destroy();
 	}
 }
