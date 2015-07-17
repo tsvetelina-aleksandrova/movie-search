@@ -37,7 +37,7 @@ public class MySqlMoviesConnectionTest {
 	}
 
 	@Test
-	public void testAvailablePrepStatements() {
+	public void testAvailablePrepStatements() throws Exception {
 		HashMap<String, MoviePrepStatement> statements = mySqlconnection.getMoviePrepStatements();
 		assertEquals(2, statements.size());
 		assertTrue(statements.containsKey(MoviePrepStatement.INSERT_STATEMENT_NAME));
@@ -71,10 +71,11 @@ public class MySqlMoviesConnectionTest {
 	public void testGetMatching() throws Exception {
 		mockStatements();
 		final String testMatchText = "text";
+		final String testMatchLikeText = "%text%";
 		mySqlconnection.getMatching(testMatchText);
 
-		Mockito.verify(selectTestPrepSt).setString(1, testMatchText);
-		Mockito.verify(selectTestPrepSt).setString(2, testMatchText);
+		Mockito.verify(selectTestPrepSt).setString(1, testMatchLikeText);
+		Mockito.verify(selectTestPrepSt).setString(2, testMatchLikeText);
 		Mockito.verify(selectTestPrepSt).executeQuery();
 	}
 

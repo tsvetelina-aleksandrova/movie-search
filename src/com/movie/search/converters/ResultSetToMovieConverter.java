@@ -14,15 +14,16 @@ public class ResultSetToMovieConverter implements IConverter<ResultSet, List<Mov
 	@Override
 	public List<Movie> convert(ResultSet resultSet) throws SQLException {
 		List<Movie> movies = new LinkedList<>();
-
-		while (resultSet.next()) {
-			String title = resultSet.getString(TITLE_COLUMN_NAME);
-			String description = resultSet.getString(DESCR_COLUMN_NAME);
-
-			movies.add(new Movie(title, description));
-		}
 		if (resultSet != null) {
-			resultSet.close();
+			while (resultSet.next()) {
+				String title = resultSet.getString(TITLE_COLUMN_NAME);
+				String description = resultSet.getString(DESCR_COLUMN_NAME);
+
+				movies.add(new Movie(title, description));
+			}
+			if (resultSet != null) {
+				resultSet.close();
+			}
 		}
 
 		return movies;

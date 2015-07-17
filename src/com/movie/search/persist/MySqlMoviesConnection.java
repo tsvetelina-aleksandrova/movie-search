@@ -24,6 +24,7 @@ public class MySqlMoviesConnection implements IConnection {
 	MySqlMoviesConnection(final Connection connection) {
 		this();
 		this.connection = connection;
+		createMoviePrepStatements();
 	}
 
 	@Override
@@ -33,12 +34,7 @@ public class MySqlMoviesConnection implements IConnection {
 
 			connection = DriverManager
 					.getConnection(PoolingDriverConfig.JDBC_POOLING_DRIVER_NAME + PoolingDriverConfig.POOL_NAME);
-
-			movieStatements.put(MoviePrepStatement.INSERT_STATEMENT_NAME,
-					new MoviePrepStatement(connection, INSERT_QUERY));
-			movieStatements.put(MoviePrepStatement.SELECT_MATCHING_STATEMENT_NAME,
-					new MoviePrepStatement(connection, SELECT_LIKE_QUERY));
-
+			createMoviePrepStatements();
 		} catch (SQLException e) {
 			System.out.println("Connection to database failed!");
 			throw e;
@@ -64,7 +60,7 @@ public class MySqlMoviesConnection implements IConnection {
 	public void insert(final String title, final String description) throws SQLException {
 		MoviePrepStatement insertStatement = movieStatements.get(MoviePrepStatement.INSERT_STATEMENT_NAME);
 		PreparedStatement prepStatement = insertStatement.getPrepStatement();
-		System.out.println("here");
+
 		prepStatement.setString(1, title);
 		prepStatement.setString(2, description);
 
@@ -84,5 +80,11 @@ public class MySqlMoviesConnection implements IConnection {
 
 	HashMap<String, MoviePrepStatement> getMoviePrepStatements() {
 		return movieStatements;
+	}
+
+	private final void createMoviePrepStatements() {
+		movieStatements.put(MoviePrepStatement.INSERT_STATEMENT_NAME, new MoviePrepStatement(connection, INSERT_QUERY));
+		movieStatements.put(MoviePrepStatement.SELECT_MATCHING_STATEMENT_NAME,
+				new MoviePrepStatement(connection, SELECT_LIKE_QUERY));
 	}
 }

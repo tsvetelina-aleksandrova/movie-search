@@ -15,7 +15,6 @@ var helpers = (function() {
 		var encodedValue = value.trim().replace(/[\u00A0-\u9999<>\&]/gim, function(i) {
    			return '&#'+i.charCodeAt(0)+';';
    		});
-   		console.log(encodedValue);
    		return encodedValue;
 	}
 

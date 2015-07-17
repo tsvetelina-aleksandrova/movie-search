@@ -8,7 +8,7 @@ import java.util.List;
 import com.movie.search.converters.ResultSetToMovieConverter;
 import com.movie.search.models.Movie;
 import com.movie.search.persist.MySqlMoviesConnection;
-import com.mysql.jdbc.exceptions.MySQLIntegrityConstraintViolationException;
+import com.mysql.jdbc.exceptions.jdbc4.MySQLIntegrityConstraintViolationException;
 
 public class MovieController implements IMovieController {
 	private MySqlMoviesConnection connection;
@@ -31,6 +31,7 @@ public class MovieController implements IMovieController {
 			connection.insert(title, description);
 			return true;
 		} catch (MySQLIntegrityConstraintViolationException e) {
+
 			return false;
 		} finally {
 			connection.close();

@@ -46,36 +46,38 @@ public class MoviesServlet extends HttpServlet {
 			movies = movieController.getMoviesMatching(textToMatch);
 			if (movies.isEmpty()) {
 				response.setStatus(HttpServletResponse.SC_NO_CONTENT);
-				response.flushBuffer();
-				return;
+				response.getWriter().write("No movies found");
+			} else {
+				String jsonOutput = movieListConverter.convert(movies);
+
+				response.setContentType("application/json");
+				response.setCharacterEncoding("UTF-8");
+				response.getWriter().write(jsonOutput);
 			}
-			String jsonOutput = movieListConverter.convert(movies);
-
-			response.setContentType("application/json");
-			response.setCharacterEncoding("UTF-8");
-			response.getWriter().write(jsonOutput);
-
 		} catch (Exception e) {
 			e.printStackTrace();
 			response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
-			response.flushBuffer();
 		}
 	}
 
 	protected void doPost(HttpServletRequest request, HttpServletResponse response)
 			throws ServletException, IOException {
+		System.out.println("HERE");
 		final String title = request.getParameter("movie-title");
 		final String description = request.getParameter("movie-descr");
 		try {
 			if (movieController.addMovie(title, description)) {
+				System.out.println("add");
 				response.setStatus(HttpServletResponse.SC_OK);
 				response.getWriter().write("Movie added successfully");
 			} else {
+				System.out.println("confl");
 				response.setStatus(HttpServletResponse.SC_CONFLICT);
 				response.getWriter().write("Duplicate movie title");
 			}
 
 		} catch (Exception e) {
+			e.printStackTrace();
 			response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
 			response.getWriter().write("Movie was not added successfully");
 		}
@@ -94,7 +96,9 @@ public class MoviesServlet extends HttpServlet {
 
 	public void destroy() {
 		try {
-			poolingDriverConfig.shutdownDriver();
+			if (poolingDriverConfig != null) {
+				poolingDriverConfig.shutdownDriver();
+			}
 		} catch (Exception e) {
 			System.out.println("Error while shutting down database pool");
 			e.printStackTrace();
