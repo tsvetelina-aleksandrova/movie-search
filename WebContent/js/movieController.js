@@ -28,10 +28,21 @@ var MovieController = function() {
 			.html("Something went wrong. Please try again later");
 	}
 
-	function loadMovieTitles(movieTitles) {
-		movieTitles.movies.forEach(function(movieMap){
+	function loadMovieTitles(movieTitles, currentSearchText) {
+		var titles = [];
+
+		movieTitles.movies.forEach(function(movieMap) {
+			var title = movieMap.title;
+			if(title.indexOf(currentSearchText) > -1) {
+				titles.unshift(title);
+			} else {
+				titles.push(title);
+			}
+		});
+
+		titles.forEach(function(title) {
 			var $titleListItem = $("<li></li>");
-			$titleListItem.html(movieMap.title);
+			$titleListItem.html(title);
 			$searchResultsList.append($titleListItem);
 		});
 	}
@@ -69,7 +80,7 @@ var MovieController = function() {
 					$searchInfoText.hide();
 					
 					if(result && result.status === 200) {
-						loadMovieTitles(result);
+						loadMovieTitles(result, currentSearchText);
 					} else {
 						showNoMoviesFoundMsg();
 					}
@@ -87,9 +98,7 @@ var MovieController = function() {
 			return;
 		}
 		resource.create(newMovieData).then(function(result) {
-			if(result.status === 200) {
-				showAddSuccessfulMsg();
-			}
+			showAddSuccessfulMsg();
 		}, function(result) {
 			$addSuccessText.hide();
 			$addErrorText.show();
