@@ -3,8 +3,7 @@ var Resource = function(url) {
 		return Q($.ajax({
 		    url: url,
 		    method: "get",
-		    data: queryParams,
-		    dataType: "json"
+		    data: queryParams
 		}));
 	}
 
@@ -12,8 +11,7 @@ var Resource = function(url) {
 		return Q($.ajax({
 		    url: url, 
 		    method: "post",
-		    data: data,
-		    dataType: "json"
+		    data: data
 		}));
 	}
 }

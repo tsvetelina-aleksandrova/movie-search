@@ -24,15 +24,12 @@ var MovieController = function() {
 
 	function showSearchErrorMsg() {
 		$searchErrorText.show();
-		$searchErrorText.html(
-			"Something went wrong. Please try again later");
+		$searchErrorText
+			.html("Something went wrong. Please try again later");
 	}
 
-	function loadMovieTitles(jsonText) {
-		console.log("	fuck	");
-		var movieTitles = JSON.parse(jsonText);
-		
-		movieTitles.forEach(function(movieMap){
+	function loadMovieTitles(movieTitles) {
+		movieTitles.movies.forEach(function(movieMap){
 			var $titleListItem = $("<li></li>");
 			$titleListItem.html(movieMap.title);
 			$searchResultsList.append($titleListItem);
@@ -66,22 +63,19 @@ var MovieController = function() {
 			$searchWaitText.show();
 			$searchResultsList.empty();
 
-			resource.query({"textToMatch": currentSearchText}).then(function() {
-				console.log(1);
-			}, function(result) {
-				console.log(3);
-				$searchWaitText.hide();
-				$searchInfoText.hide();
-
-				if(result.status === 200) {
-					console.log(2);
-					loadMovieTitles(result.responseText);
-				} else if(result.status === 204) {
-					showNoMoviesFoundMsg();
-				}	else {
+			resource.query({"textToMatch": currentSearchText})
+				.then(function(result) {
+					$searchWaitText.hide();
+					$searchInfoText.hide();
+					
+					if(result && result.status === 200) {
+						loadMovieTitles(result);
+					} else {
+						showNoMoviesFoundMsg();
+					}
+				}, function(result) {
 					showSearchErrorMsg();
-				}
-			});
+				});
 		}
 	}
 
@@ -92,19 +86,17 @@ var MovieController = function() {
 			e.preventDefault();
 			return;
 		}
-		resource.create(newMovieData).then(function() {
-			//
-		}, function(result){
+		resource.create(newMovieData).then(function(result) {
 			if(result.status === 200) {
 				showAddSuccessfulMsg();
+			}
+		}, function(result) {
+			$addSuccessText.hide();
+			$addErrorText.show();
+			if(result.status === 409) {
+				$addErrorText.html("A movie with this title already exists");
 			} else {
-				$addSuccessText.hide();
-				$addErrorText.show();
-				if(result.status === 409) {
-					$addErrorText.html("A movie with this title already exists");
-				} else {
-					$addErrorText.html("Movie was not added successfully");
-				}
+				$addErrorText.html("Movie was not added successfully");
 			}
 		});
 		e.preventDefault();
@@ -113,10 +105,10 @@ var MovieController = function() {
 	this.init = function() {
 		$searchWaitText.hide();
 
-		$(".main-container").on("input", 
-			"#search-movie-input", this.searchMovie);
+		$(".main-container")
+			.on("input", "#search-movie-input", this.searchMovie);
 
-		$(".main-container").on("submit", 
-			"#add-movie-form", this.addMovie);
+		$(".main-container")
+			.on("submit", "#add-movie-form", this.addMovie);
 	}
 }

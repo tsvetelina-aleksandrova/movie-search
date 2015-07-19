@@ -23,12 +23,14 @@ public class MoviesServlet extends HttpServlet {
 	private static final long serialVersionUID = 1L;
 
 	private MovieToJsonConverter movieListConverter;
+	private static String RESPONSE_STR = "{\"status\": %d, \"msg\": \"%s\"}";
 
 	public void init(ServletConfig config) throws ServletException {
 		super.init(config);
 		movieListConverter = new MovieToJsonConverter();
 	}
 
+	@SuppressWarnings("unchecked")
 	protected void doGet(HttpServletRequest request, HttpServletResponse response)
 			throws ServletException, IOException {
 
@@ -39,13 +41,16 @@ public class MoviesServlet extends HttpServlet {
 		try {
 			movies = movieDao.findByMatchingTitleOrDescr(textToMatch);
 			if (movies.isEmpty()) {
-				response.setStatus(HttpServletResponse.SC_NO_CONTENT);
-				response.getWriter().write("No movies found");
+				final int responseStatus = HttpServletResponse.SC_NO_CONTENT;
+				final String statusMsg = "No movies found";
+				response.setStatus(responseStatus);
+
+				response.getWriter().write(String.format(RESPONSE_STR, responseStatus, statusMsg));
 			} else {
 				JSONObject jsonOutput = movieListConverter.convert(movies);
+				jsonOutput.put("status", HttpServletResponse.SC_OK);
 
 				response.setContentType("application/json");
-				System.out.println(jsonOutput.toJSONString());
 				response.getWriter().write(jsonOutput.toJSONString());
 			}
 		} catch (Exception e) {
@@ -60,6 +65,7 @@ public class MoviesServlet extends HttpServlet {
 
 		final String title = request.getParameter("movie-title");
 		final String description = request.getParameter("movie-descr");
+
 		final Movie newMovie = new Movie(title, description);
 		final MovieDAO movieDao = new MovieDAO(EntityManagerProvider.getEntityManager());
 
@@ -68,8 +74,10 @@ public class MoviesServlet extends HttpServlet {
 				response.setStatus(HttpServletResponse.SC_OK);
 				response.getWriter().write("Movie added");
 			} else {
-				response.setStatus(HttpServletResponse.SC_CONFLICT);
-				response.getWriter().write("Duplicate movie titles are not allowed");
+				final int duplicateStatus = HttpServletResponse.SC_CONFLICT;
+				final String statusMsg = "Duplicate movie titles are not allowed";
+				response.setStatus(duplicateStatus);
+				response.getWriter().write(String.format(RESPONSE_STR, duplicateStatus, statusMsg));
 			}
 
 		} catch (Exception e) {
