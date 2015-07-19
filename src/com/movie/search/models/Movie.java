@@ -11,7 +11,8 @@ import javax.persistence.NamedQuery;
 
 @Entity(name = "movies")
 @NamedQueries({
-		@NamedQuery(name = "findByMatchingTitleOrDescr", query = "select m.title, m.description from movies m where m.title like :textToMatch or m.description like :textToMatch") })
+		@NamedQuery(name = "findByTitle", query = "select new com.movie.search.models.Movie(m.title, m.description) from movies m where m.title = :title"),
+		@NamedQuery(name = "findByMatchingTitleOrDescr", query = "select new com.movie.search.models.Movie(m.title, m.description) from movies m where m.title like :textToMatch or m.description like :textToMatch") })
 public class Movie implements Serializable {
 	private static final long serialVersionUID = 1L;
 
@@ -49,12 +50,13 @@ public class Movie implements Serializable {
 
 	@Override
 	public String toString() {
-		String result = getClass().getSimpleName() + " ";
+		StringBuilder result = new StringBuilder(getClass().getSimpleName());
+		result.append(" ");
 		if (title != null && !title.trim().isEmpty())
-			result += "title: " + title;
+			result.append("title: ").append(title);
 		if (description != null && !description.trim().isEmpty())
-			result += ", description: " + description;
-		return result;
+			result.append(", description: ").append(description);
+		return result.toString();
 	}
 
 	@Override
@@ -77,8 +79,6 @@ public class Movie implements Serializable {
 	@Override
 	public int hashCode() {
 		final int prime = 31;
-		int result = 1;
-		result = prime * result + ((id == null) ? 0 : id.hashCode());
-		return result;
+		return prime + ((id == null) ? 0 : id.hashCode());
 	}
 }

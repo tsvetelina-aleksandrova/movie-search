@@ -4,7 +4,6 @@ import java.io.IOException;
 import java.util.LinkedList;
 import java.util.List;
 
-import javax.persistence.EntityManager;
 import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
@@ -12,7 +11,9 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import com.movie.search.converters.MovieToJsonStringConverter;
+import org.json.simple.JSONObject;
+
+import com.movie.search.converters.MovieToJsonConverter;
 import com.movie.search.dao.MovieDAO;
 import com.movie.search.models.Movie;
 import com.movie.search.providers.EntityManagerProvider;
@@ -21,59 +22,60 @@ import com.movie.search.providers.EntityManagerProvider;
 public class MoviesServlet extends HttpServlet {
 	private static final long serialVersionUID = 1L;
 
-	private MovieToJsonStringConverter movieListConverter;
-	private MovieDAO movieDao;
+	private MovieToJsonConverter movieListConverter;
 
 	public void init(ServletConfig config) throws ServletException {
 		super.init(config);
-		final EntityManager entityManager = EntityManagerProvider.getEntityManager();
-		movieDao = new MovieDAO(entityManager);
-		movieListConverter = new MovieToJsonStringConverter();
+		movieListConverter = new MovieToJsonConverter();
 	}
 
 	protected void doGet(HttpServletRequest request, HttpServletResponse response)
 			throws ServletException, IOException {
+
 		final String textToMatch = request.getParameter("textToMatch");
+		final MovieDAO movieDao = new MovieDAO(EntityManagerProvider.getEntityManager());
 		List<Movie> movies = new LinkedList<>();
+
 		try {
 			movies = movieDao.findByMatchingTitleOrDescr(textToMatch);
 			if (movies.isEmpty()) {
 				response.setStatus(HttpServletResponse.SC_NO_CONTENT);
 				response.getWriter().write("No movies found");
 			} else {
-				String jsonOutput = movieListConverter.convert(movies);
+				JSONObject jsonOutput = movieListConverter.convert(movies);
 
 				response.setContentType("application/json");
-				response.setCharacterEncoding("UTF-8");
-				response.getWriter().write(jsonOutput);
+				System.out.println(jsonOutput.toJSONString());
+				response.getWriter().write(jsonOutput.toJSONString());
 			}
 		} catch (Exception e) {
 			e.printStackTrace();
 			response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+			response.getWriter().write("DB error");
 		}
 	}
 
 	protected void doPost(HttpServletRequest request, HttpServletResponse response)
 			throws ServletException, IOException {
-		System.out.println("HERE");
+
 		final String title = request.getParameter("movie-title");
 		final String description = request.getParameter("movie-descr");
 		final Movie newMovie = new Movie(title, description);
+		final MovieDAO movieDao = new MovieDAO(EntityManagerProvider.getEntityManager());
+
 		try {
 			if (movieDao.addMovie(newMovie)) {
-				System.out.println("add");
 				response.setStatus(HttpServletResponse.SC_OK);
-				response.getWriter().write("Movie added successfully");
+				response.getWriter().write("Movie added");
 			} else {
-				System.out.println("confl");
 				response.setStatus(HttpServletResponse.SC_CONFLICT);
-				response.getWriter().write("Duplicate movie title");
+				response.getWriter().write("Duplicate movie titles are not allowed");
 			}
 
 		} catch (Exception e) {
 			e.printStackTrace();
 			response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
-			response.getWriter().write("Movie was not added successfully");
+			response.getWriter().write("DB error");
 		}
 	}
 }

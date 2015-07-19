@@ -17,9 +17,9 @@ public class MovieDAO extends AbstractDAO {
 
 	public boolean addMovie(final Movie movie) {
 		EntityTransaction tx = beginTransaction();
-		Movie foundBook = findByTitle(movie.getTitle());
+		final Movie movieWithSameTitle = findByTitle(movie.getTitle());
 
-		if (foundBook == null) {
+		if (movieWithSameTitle == null) {
 			getEntityManager().persist(movie);
 			commitTransaction(tx);
 			return true;
@@ -29,18 +29,25 @@ public class MovieDAO extends AbstractDAO {
 
 	public List<Movie> findByMatchingTitleOrDescr(final String textToMatch) {
 		final String textToMatchWithLike = "%" + textToMatch + "%";
-		List<Movie> movieResults = new LinkedList<>();
+		List<Movie> movieResults = new LinkedList<Movie>();
+
 		TypedQuery<Movie> query = getEntityManager().createNamedQuery("findByMatchingTitleOrDescr", Movie.class)
 				.setParameter("textToMatch", textToMatchWithLike);
 		try {
 			movieResults = query.getResultList();
 		} catch (NoResultException e) {
-			System.out.println("No movies found in db");
+			//
 		}
 		return movieResults;
 	}
 
 	public Movie findByTitle(final String title) {
-		return getEntityManager().find(Movie.class, title);
+		TypedQuery<Movie> query = getEntityManager().createNamedQuery("findByTitle", Movie.class).setParameter("title",
+				title);
+		try {
+			return query.getSingleResult();
+		} catch (NoResultException e) {
+			return null;
+		}
 	}
 }
